@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>私たちの初めてのバレンタイン</title>
+
+<style>
+:root{
+  --paper:#f4efe8;
+  --ink:#2e2a26;
+  --muted:#7a7269;
+  --border:#cbbfb1;
+  --love:#b85c5c;
+  --rose:#d85a7a;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+
+body{
+  margin:0;
+  font-family:"Times New Roman","Yu Mincho","Hiragino Mincho ProN",serif;
+  color:var(--ink);
+  background:#f1ebe3;
+  overflow:hidden;
+}
+
+/* ===== Background gallery (lighter) =====
+   FIX: make sure bg sits behind EVERYTHING and overlay doesn't cover images */
+.bg{
+  position:fixed;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:6vh 6vw;
+  z-index:-10;                 /* ✅ push further back */
+  overflow:hidden;
+}
+.bg-inner{
+  width:100%;
+  max-width:1200px;
+  max-height:520px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:18px;
+  position:relative;
+  z-index:1;                   /* ✅ above bg overlay */
+}
+.panel{
+  border:6px solid #fffaf2;
+  border-radius:10px;
+  overflow:hidden;
+  background:#efe6db;
+  box-shadow:
+    inset 0 0 0 1px #d8cdbf,
+    0 16px 40px rgba(0,0,0,.18);
+  position:relative;
+}
+.panel img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter: sepia(.18) brightness(.98) contrast(.92);
+  transform: scale(1.02);
+}
+
+/* ✅ lighter overlay (behind images, not in front) */
+.bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;                   /* ✅ behind .bg-inner */
+  background:
+    radial-gradient(900px 500px at 20% 20%, rgba(216,90,122,.18), transparent 62%),
+    radial-gradient(900px 500px at 80% 75%, rgba(184,92,92,.12), transparent 62%),
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16));
+  pointer-events:none;
+}
+
+@media(max-width:640px){
+  .bg{padding:16px}
+  /* keep them parallel side-by-side even on mobile */
+  .bg-inner{
+    display:flex;              /* ✅ horizontal, no stacking */
+    gap:14px;
+    max-height:320px;
+    overflow-x:auto;           /* ✅ allow scrolling if narrow */
+    padding-bottom:8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .bg-inner::-webkit-scrollbar{display:none}
+  .panel{
+    flex:0 0 70vw;             /* ✅ each image visible; swipe for next */
+    min-width:220px;
+  }
+}
+
+/* ===== Paper card ===== */
+.wrap{
+  min-height:100%;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  position:relative;
+  z-index:5;                   /* ✅ above bg */
+}
+.card{
+  width:min(540px,100%);
+  background: rgba(244,239,232,0.92);
+  padding:28px 22px;
+  text-align:center;
+  border-radius:10px;
+  box-shadow:
+    0 25px 70px rgba(0,0,0,.22),
+    inset 0 0 0 1px rgba(203,191,177,.7);
+  position:relative;
+}
+
+/* paper grain */
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.01),
+    rgba(0,0,0,.01) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode:multiply;
+  pointer-events:none;
+  opacity:.35;
+}
+
+/* Bouquet */
+.bouquet{
+  width:min(210px, 55vw);
+  margin:-10px auto 10px;
+  display:block;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.15));
+}
+
+/* Love stamp */
+.stamp{
+  position:absolute;
+  top:14px;
+  right:14px;
+  color:var(--love);
+  border:1px dashed rgba(184,92,92,.55);
+  padding:8px 12px;
+  border-radius:8px;
+  transform:rotate(6deg);
+  font-size:12px;
+  letter-spacing:.12em;
+  background:rgba(184,92,92,.05);
+}
+
+/* Text */
+h1{
+  margin:0;
+  font-size:30px;
+  letter-spacing:.04em;
+}
+.subtitle{
+  margin:6px 0 16px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* Love lines */
+.love{
+  display:grid;
+  gap:12px;
+  margin-bottom:20px;
+}
+.love p{
+  margin:0;
+  font-size:15px;
+  line-height:1.65;
+}
+.love span{
+  color:var(--love);
+  font-weight:700;
+}
+
+/* Button */
+button{
+  padding:12px 26px;
+  border-radius:10px;
+  border:1px solid rgba(46,42,38,.6);
+  background:transparent;
+  color:var(--ink);
+  font-family:inherit;
+  font-size:15px;
+  cursor:pointer;
+  transition:.25s ease;
+}
+button:hover{ background:rgba(184,92,92,.08); }
+button.playing{
+  background:var(--love);
+  border-color:var(--love);
+  color:#fff;
+  box-shadow:0 10px 25px rgba(184,92,92,.28);
+}
+
+.heart-img{
+  border:3px solid rgba(184,92,92,.35);
+  background:#fff;
+}
+
+.music-controls{
+  display:flex;
+  justify-content:center;
+  gap:12px;
+  margin-top:6px;
+}
+
+#pauseBtn{
+  opacity:.5;
+}
+
+#pauseBtn:enabled{
+  opacity:1;
+}
+
+
+.footer{
+  margin-top:12px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Floating hearts */
+.heart-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:2;                   /* ✅ below card, above bg */
+}
+.float-heart{
+  position:absolute;
+  bottom:-20px;
+  font-size:16px;
+  opacity:.75;
+  animation:floatUp linear forwards;
+  filter: drop-shadow(0 8px 14px rgba(216,90,122,.22));
+}
+@keyframes floatUp{
+  from{transform:translateY(0) scale(1); opacity:0}
+  20%{opacity:.85}
+  to{transform:translateY(-110vh) scale(1.12); opacity:0}
+}
+
+@media(max-width:420px){
+  .card{padding:24px 16px}
+  h1{font-size:28px}
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- Background images -->
+<div class="bg" aria-hidden="true">
+  <div class="bg-inner">
+    <div class="panel"><img src="photo2.jpg" alt="photo1"></div>
+    <div class="panel"><img src="bouquet.jpg" alt="photo2"></div>
+    <div class="panel"><img src="photo3.jpg" alt="photo3"></div>
+  </div>
+</div>
+
+<!-- Floating hearts -->
+<div class="heart-layer" id="heartLayer" aria-hidden="true"></div>
+
+<div class="wrap">
+  <main class="card">
+    <div class="stamp">MY LOVE</div>
+
+<img class="bouquet heart-img" src="photo1.jpg" alt="bouquet"
+     onerror="this.style.display='none';" />
+
+    <div class="subtitle">our first Valentine</div>
+
+    <section class="love">
+  <p><span>Happy Valentine’s Day</span> ပါ ကိုကိုသဲတုံး 🤍</p>
+
+  <p>
+    ဒီနှစ်ရဲ့ ဒီရက်လေးတော့ <span>အတူတူမရှိရ</span> ပေမယ့်  
+    နောက်နှစ်တွေမှာတော့ <span>အတူတူရှိမယ်</span> နော်။
+  </p>
+
+  <p>
+    အားလုံးက <span>တစ်ဖြည်းဖြည်း အဆင်ပြေ</span> သွားမှာမို့  
+    အားတင်းပြီး နေပေးနော်။
+  </p>
+
+  <p>
+    ကိုကိုရဲ့ <span>ချစ်ရတဲ့သူ</span> အဖြစ်  
+    လက်ခံပေးလို့ <span>ကျေးဇူးအများကြီး</span> ပါ။
+  </p>
+
+  <p><span>အရမ်း အရမ်း ချစ်တယ်</span> 🤍</p>
+
+    <div class="music-controls">
+  <button id="musicBtn">play our song</button>
+  <button id="pauseBtn" disabled>pause</button>
+</div>
+
+    <div class="footer">♡ always yours</div>
+  </main>
+</div>
+
+<audio id="bgMusic" src="music.mp3" loop preload="auto"></audio>
+<script>
+const playBtn  = document.getElementById("musicBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const music    = document.getElementById("bgMusic");
+
+playBtn.addEventListener("click", async ()=>{
+  try{
+    await music.play();
+    playBtn.textContent = "playing…";
+    playBtn.classList.add("playing");
+    pauseBtn.disabled = false;
+  }catch(e){
+    alert("music.mp3 ကို index.html နဲ့ folder တူထဲထည့်ပါ 🙏");
+  }
+});
+
+pauseBtn.addEventListener("click", ()=>{
+  music.pause();
+  playBtn.textContent = "play our song";
+  playBtn.classList.remove("playing");
+  pauseBtn.disabled = true;
+});
+
+
+/* Colored floating hearts */
+const layer=document.getElementById("heartLayer");
+const hearts=["❤","💖","💗","💘","❥","♡"];
+const colors=["#b85c5c","#d85a7a","#ff6aa2","#c25b7c"];
+
+setInterval(()=>{
+  const h=document.createElement("div");
+  h.className="float-heart";
+  h.textContent=hearts[Math.floor(Math.random()*hearts.length)];
+  h.style.left=Math.random()*100+"vw";
+  h.style.animationDuration=(7+Math.random()*6)+"s";
+  h.style.color=colors[Math.floor(Math.random()*colors.length)];
+  layer.appendChild(h);
+  setTimeout(()=>h.remove(),14000);
+},850);
+</script>
+
+</body>
+</html>
